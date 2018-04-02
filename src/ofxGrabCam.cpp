@@ -267,27 +267,22 @@ void ofxGrabCam::mouseScrolled(ofMouseEventArgs & args) {
 		return;
 	}
 
-	if (!this->inputState.mouseDown.down) {
-		//we didn't go down inside the viewport, so ignore the drag
-		return;
+	this->tracking.mouse.viewport = this->getMouseInViewport(args);
+
+	// if mouse goes down in our viewport then let's take it
+	if (this->tracking.mouse.viewport.withinViewport) {
+		this->tracking.findMouseThisFrame = true;
 	}
-
-	auto updatedMouse = this->getMouseInViewport(args);
-
 	//calculate mouse movement this frame
-	auto mouseMovement = updatedMouse.position - this->tracking.mouse.viewport.position;
 
 	//don't copy all parameters to the cached mouse, keep the z and withinViewport state as before
-	this->tracking.mouse.viewport.position = updatedMouse.position;
+	this->tracking.mouse.viewport.position = args;
 
 	const auto cameraPosition = ofCamera::getPosition();
-	const auto cameraUpDirection = ofCamera::getUpDir();
-	const auto cameraSideDirection = ofCamera::getSideDir();
-	float aspectRatio = float(this->view.viewport.getWidth()) / float(this->view.viewport.getHeight());
 
 	const auto cameraToMouse = this->tracking.mouse.world - cameraPosition;
 
-	ofCamera::move(2 * cameraToMouse * args.scrollY / this->view.viewport.getHeight());
+	ofCamera::move(10 * cameraToMouse * args.scrollY / this->view.viewport.getHeight());
 }
 
 //--------------------------
