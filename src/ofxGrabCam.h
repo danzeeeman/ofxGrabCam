@@ -7,6 +7,10 @@
 //	http://www.kimchiandchips.com
 //
 
+#include "ofMath.h"
+#include "ofGraphics.h"
+#include "ofVectorMath.h"
+#include "ofQuaternion.h"
 #include "ofRectangle.h"
 #include "ofPixels.h"
 #include "ofCamera.h"
@@ -49,6 +53,7 @@ public:
 	//events
 	//
 	void	update(ofEventArgs & args);
+	void	mouseScrolled(ofMouseEventArgs & args);
 	void    mouseMoved(ofMouseEventArgs & args);
 	void	mousePressed(ofMouseEventArgs & args);
 	void	mouseReleased(ofMouseEventArgs & args);
@@ -85,6 +90,7 @@ protected:
 			bool r;
 			uint64_t resetHoldStartTime;
 		} keysDown;
+		int keyCode;
 	} inputState;
 
 	struct {	

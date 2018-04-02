@@ -262,6 +262,34 @@ void ofxGrabCam::update(ofEventArgs &args) {
 	}
 }
 
+void ofxGrabCam::mouseScrolled(ofMouseEventArgs & args) {
+	if (!this->userSettings.mouseActionsEnabled) {
+		return;
+	}
+
+	if (!this->inputState.mouseDown.down) {
+		//we didn't go down inside the viewport, so ignore the drag
+		return;
+	}
+
+	auto updatedMouse = this->getMouseInViewport(args);
+
+	//calculate mouse movement this frame
+	auto mouseMovement = updatedMouse.position - this->tracking.mouse.viewport.position;
+
+	//don't copy all parameters to the cached mouse, keep the z and withinViewport state as before
+	this->tracking.mouse.viewport.position = updatedMouse.position;
+
+	const auto cameraPosition = ofCamera::getPosition();
+	const auto cameraUpDirection = ofCamera::getUpDir();
+	const auto cameraSideDirection = ofCamera::getSideDir();
+	float aspectRatio = float(this->view.viewport.getWidth()) / float(this->view.viewport.getHeight());
+
+	const auto cameraToMouse = this->tracking.mouse.world - cameraPosition;
+
+	ofCamera::move(2 * cameraToMouse * args.scrollY / this->view.viewport.getHeight());
+}
+
 //--------------------------
 void ofxGrabCam::mouseMoved(ofMouseEventArgs & args) {
 	if (!this->userSettings.mouseActionsEnabled) {
@@ -309,7 +337,7 @@ void ofxGrabCam::mouseReleased(ofMouseEventArgs & args) {
 
 //--------------------------
 void ofxGrabCam::mouseDragged(ofMouseEventArgs & args) {
-	if (!this->userSettings.mouseActionsEnabled) {
+	if (!this->userSettings.mouseActionsEnabled || this->inputState.keyCode == -1) {
 		return;
 	}
 	
@@ -344,14 +372,14 @@ void ofxGrabCam::mouseDragged(ofMouseEventArgs & args) {
 	if (this->inputState.keysDown.h) {
 		action = Action::Pan;
 	} else {
-		switch (this->inputState.mouseDown.button) {
-		case 0:
+		switch (this->inputState.keyCode) {
+		case '2':
 			action = Action::Orbit;
 			break;
-		case 1:
+		case '1':
 			action = Action::Pan;
 			break;
-		case 2:
+		case '3':
 			action = Action::Dolly;
 			break;
 		default:
@@ -416,6 +444,8 @@ void ofxGrabCam::keyPressed(ofKeyEventArgs & args) {
 	if (args.key == 'h') {
 		this->inputState.keysDown.h = true;
 	}
+
+	this->inputState.keyCode = args.keycode;
 }
 
 //--------------------------
@@ -427,6 +457,7 @@ void ofxGrabCam::keyReleased(ofKeyEventArgs & args) {
 	if (args.key == 'r') {
 		this->inputState.keysDown.r = false;
 	}
+	this->inputState.keyCode = -1;
 }
 
 //--------------------------
@@ -442,6 +473,7 @@ void ofxGrabCam::addListeners() {
 	ofAddListener(ofEvents().mousePressed, this, &ofxGrabCam::mousePressed);
 	ofAddListener(ofEvents().mouseReleased, this, &ofxGrabCam::mouseReleased);
 	ofAddListener(ofEvents().mouseDragged, this, &ofxGrabCam::mouseDragged);
+	ofAddListener(ofEvents().mouseScrolled, this, &ofxGrabCam::mouseScrolled);
 	ofAddListener(ofEvents().keyPressed, this, &ofxGrabCam::keyPressed);
 	ofAddListener(ofEvents().keyReleased, this, &ofxGrabCam::keyReleased);
 
@@ -456,6 +488,7 @@ void ofxGrabCam::removeListeners() {
 		ofRemoveListener(ofEvents().mousePressed, this, &ofxGrabCam::mousePressed);
 		ofRemoveListener(ofEvents().mouseReleased, this, &ofxGrabCam::mouseReleased);
 		ofRemoveListener(ofEvents().mouseDragged, this, &ofxGrabCam::mouseDragged);
+		ofRemoveListener(ofEvents().mouseScrolled, this, &ofxGrabCam::mouseScrolled);
 		ofRemoveListener(ofEvents().keyPressed, this, &ofxGrabCam::keyPressed);
 		ofRemoveListener(ofEvents().keyReleased, this, &ofxGrabCam::keyReleased);
 
