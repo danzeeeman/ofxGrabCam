@@ -395,7 +395,7 @@ void ofxGrabCam::mouseDragged(ofMouseEventArgs & args) {
 		if (this->userSettings.fixUpDirection) {
 			ofQuaternion rotToUp;
 			ofVec3f sideDir = ofVec3f(ofCamera::getSideDir()) * rotateCamera;
-			rotToUp.makeRotate(sideDir, sideDir * ofVec3f(1.0, 0.0f, 1.0f));
+			rotToUp.makeRotate(sideDir, sideDir * ofVec3f(1.0, 1.0f, 0.0f));
 			rotateCamera *= rotToUp;
 		}
 
