@@ -9,6 +9,7 @@
 #include "ofxGrabCam.h"
 #include "of3dGraphics.h"
 
+
 #define OFXGRABCAM_SEARCH_WIDTH_PX 8
 #define OFXGRABCAM_RESET_HOLD_MS 500
 
@@ -385,12 +386,12 @@ void ofxGrabCam::mouseDragged(ofMouseEventArgs & args) {
 	switch (action) {
 	case Action::Orbit:
 	{
-        auto arcEnd = glm::vec3(mouseMovement.x, -mouseMovement.y, -this->userSettings.trackballRadius * this->view.viewport.getWidth());
-        arcEnd = glm::normalize(arcEnd);
+        auto arcEnd = ofVec3f(mouseMovement.x, -mouseMovement.y, -this->userSettings.trackballRadius * this->view.viewport.getWidth());
+		arcEnd = arcEnd.normalized();
         
 		ofQuaternion rotateCamera;
 		auto cameraOrientation = this->getOrientationQuat();
-        rotateCamera.makeRotate(cameraOrientation * glm::vec3(0.0f, 0.0f, -1.0f), cameraOrientation * arcEnd);
+        rotateCamera.makeRotate(cameraOrientation * ofVec3f(0.0f, 0.0f, -1.0f), cameraOrientation * arcEnd);
 
 		if (this->userSettings.fixUpDirection) {
 			ofQuaternion rotToUp;
